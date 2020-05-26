@@ -18,11 +18,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
-    - name: Clean install dependencies, build and test
+    - name: Clean install dependencies and test
       run: |
         cd lambda
         npm ci
-        npm run build --if-present
         npm test
     # - run: npm ci
     #   working-directory: ./lambda
