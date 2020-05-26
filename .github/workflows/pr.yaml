@@ -11,9 +11,10 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '12.x'
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm test
+      - run: |
+          cd lambda
+          npm ci
+          npm test
         env:
           CI: true
       - name: Run Snyk to check image for high vulnerabilities
@@ -21,4 +22,4 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high --org=dwp-dataworks
+          args: --severity-threshold=high --org=dwp-dataworks --file=lambda/package-lock.json

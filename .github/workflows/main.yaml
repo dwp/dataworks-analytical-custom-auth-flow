@@ -69,9 +69,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run Snyk monitoring
-        uses: snyk/actions/node@master/lambda
+        uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           command: monitor
-          args: --org=dwp-dataworks
+          args: --org=dwp-dataworks --file=lambda/package-lock.json
