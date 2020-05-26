@@ -1,9 +1,9 @@
 name: Master
 
-on:
-  push:
-    branches:
-      - master
+on: pull-request
+  # push:
+  #   branches:
+  #     - master
 
 env:
   IMAGE_NAME: dwpdigital/analytical-custom-auth-flow
@@ -48,20 +48,25 @@ jobs:
       - uses: montudor/action-zip@v0.1.0
         with:
           args: zip -qq -r ./lambda-zip/lambdas.zip ./lambda
-      - uses: actions/upload-artifact@master
-        with:
-          name: lambda
-          path: lambda-zip
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@latest
-        env:
+      - uses: actions/create-release@latest
+         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ needs.get-publish-version.outputs.publish-version }}
           release_name: Release ${{ needs.get-publish-version.outputs.publish-version }}
           draft: false
           prerelease: false
+          path: lambda-zip
+      # - name: Create GitHub Release
+      #   id: create_release
+      #   uses: actions/create-release@latest
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{ needs.get-publish-version.outputs.publish-version }}
+      #     release_name: Release ${{ needs.get-publish-version.outputs.publish-version }}
+      #     draft: false
+      #     prerelease: false
 
   snyk-monitor:
     runs-on: ubuntu-latest
