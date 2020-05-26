@@ -44,7 +44,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@master
       - name: Zip lambdas
-      - run: mkdir lambda-zip
+        run: mkdir lambda-zip
       - uses: montudor/action-zip@v0.1.0
         with:
           args: zip -qq -r ./lambda-zip/lambdas.zip ./lambda
