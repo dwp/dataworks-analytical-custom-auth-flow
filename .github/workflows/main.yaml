@@ -1,0 +1,80 @@
+name: Master
+
+on: 
+  push:
+    branches:
+      - master
+
+jobs:
+
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - name: Clean install dependencies and test
+      run: |
+        cd lambda
+        npm ci
+        npm test
+
+  get-publish-version:
+    runs-on: ubuntu-latest
+    outputs:
+      publish-version: ${{ steps.get-publish-version.outputs.publish-version }}
+    steps:
+    - name: Get publish version
+      id: get-publish-version
+      run: |
+        LATEST_VERSION=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+        [  -z "$LATEST_VERSION" ] && LATEST_VERSION="0.0.0"
+        VERSION=$(echo $LATEST_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+        echo "::set-output name=publish-version::${VERSION}"
+  
+  publish-github-release:
+    runs-on: ubuntu-latest
+    needs: get-publish-version
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Zip lambda
+        run: mkdir lambda-zip
+      - uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -qq -r ./lambda-zip/lambda.zip ./lambda
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.get-publish-version.outputs.publish-version }}
+          release_name: Release ${{ needs.get-publish-version.outputs.publish-version }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload_release_asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          asset_path: ./lambda-zip/lambda.zip
+          asset_name: lambda.zip
+          asset_content_type: application/zip
+
+  snyk-monitor:
+    runs-on: ubuntu-latest
+    needs: build-test
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Snyk monitoring
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: monitor
+          args: --org=dwp-dataworks --file=lambda/package-lock.json
