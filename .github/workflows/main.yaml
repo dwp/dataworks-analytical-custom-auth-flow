@@ -48,6 +48,7 @@ jobs:
       - uses: montudor/action-zip@v0.1.0
         with:
           args: zip -qq -r ./lambda-zip/lambdas.zip ./lambda
+      - run: cd lambda-zip
       - uses: actions/create-release@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
