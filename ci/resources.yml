@@ -1,9 +1,0 @@
-resources:
-  - name: emp-release
-    type: github-release
-    source:
-      owner: dwp
-      repository: emr-encryption-materials-provider
-      access_token: ((github_com.token))
-    check_every: 1h
-    

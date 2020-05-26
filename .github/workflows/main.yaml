@@ -5,9 +5,6 @@ on:
     branches:
       - master
 
-env:
-  IMAGE_NAME: dwpdigital/analytical-custom-auth-flow
-
 jobs:
 
   build-test:
