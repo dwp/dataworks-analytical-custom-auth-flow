@@ -43,12 +43,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@master
-      - name: Zip lambdas
+      - name: Zip lambda
         run: mkdir lambda-zip
       - uses: montudor/action-zip@v0.1.0
         with:
-          args: zip -qq -r ./lambda-zip/lambdas.zip ./lambda
-      - uses: actions/create-release@latest
+          args: zip -qq -r ./lambda-zip/lambda.zip ./lambda
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -57,14 +59,14 @@ jobs:
           draft: false
           prerelease: false
       - name: Upload Release Asset
-        id: upload-release-asset 
+        id: upload_release_asset 
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./lambda-zip/lambdas.zip
-          asset_name: my-artifact.zip
+          asset_path: ./lambda-zip/lambda.zip
+          asset_name: lambda.zip
           asset_content_type: application/zip
 
       # - name: Create GitHub Release
