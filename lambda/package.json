@@ -1,7 +1,7 @@
 {
   "name": "lambda_sms_totp",
   "version": "1.0.0",
-  "main": "handler.js",
+  "main": "custom-auth-lambdas.js",
   "scripts": {
     "test": "jest"
   },

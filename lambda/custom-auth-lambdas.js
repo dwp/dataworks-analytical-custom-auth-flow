@@ -10,7 +10,7 @@ module.exports.createAuthChallenge = async (event = {}, context) => {
         }
         else return event.request.userAttributes.phone_number;
     }
-    oneTimeAuthCode = crypto.randomDigits(6).join('');
+    const oneTimeAuthCode = crypto.randomDigits(6).join('');
     await sendSMS(mobileNumber(), oneTimeAuthCode, event.userName)
     event.response.privateChallengeParameters = { "otp" : oneTimeAuthCode };
     
