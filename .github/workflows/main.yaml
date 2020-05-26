@@ -22,7 +22,7 @@ jobs:
       run: |
         cd lambda
         npm ci
-        npm run build
+        npm run build --if-present
         npm test
     # - run: npm ci
     #   working-directory: ./lambda
