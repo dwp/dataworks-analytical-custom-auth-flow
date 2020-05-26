@@ -18,10 +18,12 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
-    - run: cd lambda
     - run: npm ci
+      working-directory: ./lambda
     - run: npm run build --if-present
+      working-directory: ./lambda
     - run: npm test
+      working-directory: ./lambda
       env:
         CI: true
 
