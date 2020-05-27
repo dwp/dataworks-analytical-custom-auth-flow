@@ -49,3 +49,9 @@ module.exports.verifyAuthChallenge = async (event) => {
     event.response.answerCorrect = event.request.challengeAnswer === oneTimeAuthCode;
     return event
 }
+
+module.exports.preTokenGeneration = async (event) => {
+    if(event.triggerSource === "TokenGeneration_NewPasswordChallenge")
+        throw new Error("Please sign in again")
+    return event;
+}
