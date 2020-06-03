@@ -1,8 +1,8 @@
-import UserHandler from "../aws/UserHandler";
+const UserHandler = require("../aws/UserHandler");
 
 const userHandler = new UserHandler();
 
-export default async function postAuth(event) {
+module.exports = async function postAuth(event) {
     const username = userHandler.getExtendedUserNameFromEvent(event);
 
     await userHandler.updateUserLastLoggedIn(username);

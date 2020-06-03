@@ -1,6 +1,6 @@
 const getUserDetails = require('../aws/getUserDetails').getUserDetails;
 
-export default async function defineAuthChallenge(event) {
+module.exports = async function defineAuthChallenge(event) {
     let userDetails = await getUserDetails(event.userPoolId, event.userName)
     let existingMFA = (userDetails.PreferredMfaSetting === "SOFTWARE_TOKEN_MFA")
     console.log(JSON.stringify(event));

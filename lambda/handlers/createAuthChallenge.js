@@ -1,7 +1,7 @@
 const crypto = require("crypto-secure-random-digit");
 const sendSMS = require('../aws/sendSMS.js').sendSMS
 
-export default async function createAuthChallenge(event) {
+module.exports = async function createAuthChallenge(event) {
 
     const userPhoneNumber = event.request.userAttributes.phone_number;
     if (!userPhoneNumber) throw new Error("No phone number provided");

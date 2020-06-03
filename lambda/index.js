@@ -1,9 +1,9 @@
-import defineAuthChallenge from "./handlers/defineAuthChallenge";
-import createAuthChallenge from "./handlers/createAuthChallenge";
-import verifyAuthChallenge from "./handlers/verifyAuthChallenge";
-import preTokenGeneration from "./handlers/preTokenGeneration";
-import preAuth from "./handlers/preAuth";
-import postAuth from "./handlers/postAuth";
+const defineAuthChallenge = require("./handlers/defineAuthChallenge");
+const createAuthChallenge = require("./handlers/createAuthChallenge");
+const verifyAuthChallenge = require("./handlers/verifyAuthChallenge");
+const preTokenGeneration = require("./handlers/preTokenGeneration");
+const preAuth = require("./handlers/preAuth");
+const postAuth = require("./handlers/postAuth")
 
 module.exports = {
     defineAuthChallenge,

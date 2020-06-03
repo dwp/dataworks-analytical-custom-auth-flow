@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+const AWS = require('aws-sdk');
 
 const {TABLE_NAME, AWS_REGION} = process.env;
 const USER_EXPIRY_MONTHS = process.env.USER_EXPIRY_MONTHS ? process.env.USER_EXPIRY_MONTHS : 3;
@@ -18,7 +18,7 @@ function userFromDdb(ddbItem) {
     }
 }
 
-export default class UserHandler {
+module.exports = class UserHandler {
 
     async getUser(username) {
         const item = await ddb.getItem({

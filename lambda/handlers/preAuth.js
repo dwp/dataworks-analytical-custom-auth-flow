@@ -1,8 +1,8 @@
-import UserHandler from "../aws/UserHandler";
+const UserHandler = require( "../aws/UserHandler");
 
 const userHandler = new UserHandler();
 
-export default async function preAuth(event) {
+module.exports = async function preAuth(event) {
     const username = userHandler.getExtendedUserNameFromEvent(event);
 
     const user = await userHandler.getUser(username);
