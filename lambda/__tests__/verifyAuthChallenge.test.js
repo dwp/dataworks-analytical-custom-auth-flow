@@ -1,4 +1,4 @@
-const handler = require('../custom-auth-lambdas.js').verifyAuthChallenge;
+const handler = require('../index.js').verifyAuthChallenge;
 
 test('verifies answer if equal', async () => {
     let event = {request: {challengeAnswer: "123456", privateChallengeParameters: {otp: "123456"}}, response:{answerCorrect: false}}

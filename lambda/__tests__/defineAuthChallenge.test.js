@@ -1,4 +1,4 @@
-const handler = require('../custom-auth-lambdas.js').defineAuthChallenge;
+const handler = require('../index.js').defineAuthChallenge;
 const context = {};
 const event = {version: '1',  region: 'eu-west-0',  userPoolId: 'eu-west-0-SOMETHING',  userName: 'TestUser',  callerContext: {    awsSdkVersion: 'aws-sdk-unknown-unknown',    clientId: 'testClientID'  },  triggerSource: 'DefineAuthChallenge_Authentication',  request: {    userAttributes: {      sub: '12345678',      email_verified: 'true',      'cognito:user_status': 'FORCE_CHANGE_PASSWORD',    phone_number_verified: 'true',      phone_number: '+447891098765',     email: 'test@email.co.uk'    },    session: [ {       "challengeName": "SRP_A",       "challengeResult": true,       "challengeMetadata": null    } ],    userNotFound: false  },  response: { challengeName: null, issueTokens: null, failAuthentication: null }}
 jest.mock('../aws/getUserDetails')
