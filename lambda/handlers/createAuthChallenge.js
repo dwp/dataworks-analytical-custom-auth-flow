@@ -1,5 +1,5 @@
 const crypto = require("crypto-secure-random-digit");
-const sendSMS = require('./aws/sendSMS.js').sendSMS
+const sendSMS = require('../aws/sendSMS.js').sendSMS
 
 export default async function createAuthChallenge(event) {
 

@@ -1,4 +1,4 @@
-const getUserDetails = require('./aws/getUserDetails').getUserDetails;
+const getUserDetails = require('../aws/getUserDetails').getUserDetails;
 
 export default async function defineAuthChallenge(event) {
     let userDetails = await getUserDetails(event.userPoolId, event.userName)

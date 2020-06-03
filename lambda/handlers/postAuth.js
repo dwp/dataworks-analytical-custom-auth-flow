@@ -1,4 +1,4 @@
-import UserHandler from "./aws/UserHandler";
+import UserHandler from "../aws/UserHandler";
 
 const userHandler = new UserHandler();
 
