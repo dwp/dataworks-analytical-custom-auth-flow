@@ -2,15 +2,17 @@ import AWS from 'aws-sdk';
 
 const {TABLE_NAME, AWS_REGION} = process.env;
 const USER_EXPIRY_MONTHS = process.env.USER_EXPIRY_MONTHS ? process.env.USER_EXPIRY_MONTHS : 3;
+const MAX_INCORRECT_ATTEMPTS = process.env.MAX_INCORRECT_ATTEMPTS ? process.env.MAX_INCORRECT_ATTEMPTS : 10;
 
 const ddb = new AWS.DynamoDB({region: AWS_REGION});
 
-function userFromDdb(ddbItem){
+function userFromDdb(ddbItem) {
     return {
         username: ddbItem['username'],
         creationDate: ddbItem['creation_date'],
         expirationDate: ddbItem['expiration_date'],
         lastLoggedIn: ddbItem['last_logged_in'],
+        incorrectPasswordAttempts: ddbItem['incorrect_password_attempts'] ? ddbItem['incorrect_password_attempts'] : 0,
     }
 }
 
@@ -53,12 +55,40 @@ export default class UserHandler {
         })
     }
 
-    async isUserExpired(username) {
+    async isExpired(username) {
         const user = await this.getUser(username);
         return Date.parse(user.expirationDate) < Date.now();
     }
 
-    getExtendedUserNameFromEvent(cognitoTriggerEvent){
+    async isMaxIncorrectAttempts(username) {
+        const user = await this.getUser(username);
+        return user.incorrectPasswordAttempts >= MAX_INCORRECT_ATTEMPTS;
+    }
+
+    async incrementIncorrectAttempts(username) {
+        const user = await this.getUser(username);
+
+        return ddb.updateItem({
+            Key: {username},
+            UpdateExpression: 'SET #IPA = :incorrect_password_attempts',
+            ExpressionAttributeNames: {'#IPA': "incorrect_password_attempts"},
+            ExpressionAttributeValues: {':incorrect_password_attempts': user.incorrectPasswordAttempts + 1},
+            TableName: TABLE_NAME
+        })
+    }
+
+    async clearIncorrectAttempts(username) {
+        return ddb.updateItem({
+                Key: {username},
+                UpdateExpression: 'SET #IPA = :incorrect_password_attempts',
+                ExpressionAttributeNames: {'#IPA': "incorrect_password_attempts"},
+                ExpressionAttributeValues: {':incorrect_password_attempts': 0},
+                TableName: TABLE_NAME
+            }
+        )
+    }
+
+    getExtendedUserNameFromEvent(cognitoTriggerEvent) {
         const {userName} = cognitoTriggerEvent;
         const {sub} = cognitoTriggerEvent.request.userAttributes;
         return userName + sub.slice(0, 3);
