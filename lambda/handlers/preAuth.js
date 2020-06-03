@@ -22,4 +22,5 @@ module.exports = async function preAuth(event) {
     /* Assume this is an incorrect password attempt, it will
      be cleared if login is successful in the postAuth handler */
     await userHandler.incrementIncorrectAttempts(username);
+    return event;
 }

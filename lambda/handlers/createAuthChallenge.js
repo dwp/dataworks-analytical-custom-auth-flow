@@ -10,5 +10,5 @@ module.exports = async function createAuthChallenge(event) {
     await sendSMS(userPhoneNumber, oneTimeAuthCode, event.userName);
 
     event.response.privateChallengeParameters = {otp: oneTimeAuthCode};
-    return event
+    return event;
 }

@@ -10,11 +10,11 @@ const cognito = new AWS.CognitoIdentityServiceProvider({region: AWS_REGION});
 
 function userFromDdb(ddbItem) {
     return {
-        username: ddbItem['username'],
-        creationDate: ddbItem['creation_date'],
-        expirationDate: ddbItem['expiration_date'],
-        lastLoggedIn: ddbItem['last_logged_in'],
-        incorrectPasswordAttempts: ddbItem['incorrect_password_attempts'] ? ddbItem['incorrect_password_attempts'] : 0,
+        username: ddbItem['username'].S,
+        creationDate: Date.parse(ddbItem['creation_date'].S),
+        expirationDate: Date.parse(ddbItem['expiration_date'].S),
+        lastLoggedIn: ddbItem['last_logged_in'] ? Date.parse(ddbItem['last_logged_in'].S): null,
+        incorrectPasswordAttempts: ddbItem['incorrect_password_attempts'] ? parseInt(ddbItem['incorrect_password_attempts'].N, 10) : 0,
     }
 }
 
@@ -23,7 +23,7 @@ module.exports = class UserHandler {
     async getUser(username) {
         const item = await ddb.getItem({
             Key: {username: {S: username}},
-            TableName: TABLE_NAME,
+            TableName: String(TABLE_NAME),
         }).promise().then(res => res.Item);
 
         return item ? userFromDdb(item) : null;
@@ -49,17 +49,17 @@ module.exports = class UserHandler {
 
     async updateUserLastLoggedIn(username) {
         return ddb.updateItem({
-            Key: {username},
+            Key: {username: {S: username}},
             UpdateExpression: 'SET #LLL = :last_logged_in',
             ExpressionAttributeNames: {'#LLL': "last_logged_in"},
-            ExpressionAttributeValues: {':last_logged_in': new Date().toISOString()},
-            TableName: TABLE_NAME
+            ExpressionAttributeValues: {':last_logged_in': {S: new Date().toISOString()}},
+            TableName: String(TABLE_NAME)
         }).promise();
     }
 
     async isExpired(username) {
         const user = await this.getUser(username);
-        return Date.parse(user.expirationDate) < Date.now();
+        return user.expirationDate < Date.now();
     }
 
     async isMaxIncorrectAttempts(username) {
@@ -71,20 +71,20 @@ module.exports = class UserHandler {
         const user = await this.getUser(username);
 
         return ddb.updateItem({
-            Key: {username},
+            Key: {username: {S: username}},
             UpdateExpression: 'SET #IPA = :incorrect_password_attempts',
             ExpressionAttributeNames: {'#IPA': "incorrect_password_attempts"},
-            ExpressionAttributeValues: {':incorrect_password_attempts': user.incorrectPasswordAttempts + 1},
-            TableName: TABLE_NAME
+            ExpressionAttributeValues: {':incorrect_password_attempts': {N: String(user.incorrectPasswordAttempts + 1)}},
+            TableName: String(TABLE_NAME)
         }).promise();
     }
 
     async clearIncorrectAttempts(username) {
         return ddb.updateItem({
-                Key: {username},
+                Key: {username: {S: username}},
                 UpdateExpression: 'SET #IPA = :incorrect_password_attempts',
                 ExpressionAttributeNames: {'#IPA': "incorrect_password_attempts"},
-                ExpressionAttributeValues: {':incorrect_password_attempts': 0},
+                ExpressionAttributeValues: {':incorrect_password_attempts': {N: String(0)}},
                 TableName: TABLE_NAME
             }
         ).promise();

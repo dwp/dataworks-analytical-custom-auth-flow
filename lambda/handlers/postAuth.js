@@ -7,4 +7,6 @@ module.exports = async function postAuth(event) {
 
     await userHandler.updateUserLastLoggedIn(username);
     await userHandler.clearIncorrectAttempts(username);
+
+    return event;
 }
