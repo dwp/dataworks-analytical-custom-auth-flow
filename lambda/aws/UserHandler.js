@@ -5,6 +5,8 @@ const USER_EXPIRY_MONTHS = process.env.USER_EXPIRY_MONTHS ? process.env.USER_EXP
 const MAX_INCORRECT_ATTEMPTS = process.env.MAX_INCORRECT_ATTEMPTS ? process.env.MAX_INCORRECT_ATTEMPTS : 10;
 
 const ddb = new AWS.DynamoDB({region: AWS_REGION});
+const cognito = new AWS.CognitoIdentityServiceProvider({region: AWS_REGION});
+
 
 function userFromDdb(ddbItem) {
     return {
@@ -22,7 +24,7 @@ export default class UserHandler {
         const item = await ddb.getItem({
             Key: {username: {S: username}},
             TableName: TABLE_NAME,
-        }).then(res => res.data.Item);
+        }).promise().then(res => res.Item);
 
         return item ? userFromDdb(item) : null;
     }
@@ -39,7 +41,7 @@ export default class UserHandler {
                     'expiration_date': {S: expirationDate.toISOString()},
                 },
                 TableName: TABLE_NAME
-            });
+            }).promise();
         } catch (e) {
             console.error(`Failed to create new user ${username} in DynamoDB table ${TABLE_NAME}. Error: ` + JSON.stringify(e));
         }
@@ -52,7 +54,7 @@ export default class UserHandler {
             ExpressionAttributeNames: {'#LLL': "last_logged_in"},
             ExpressionAttributeValues: {':last_logged_in': new Date().toISOString()},
             TableName: TABLE_NAME
-        })
+        }).promise();
     }
 
     async isExpired(username) {
@@ -74,7 +76,7 @@ export default class UserHandler {
             ExpressionAttributeNames: {'#IPA': "incorrect_password_attempts"},
             ExpressionAttributeValues: {':incorrect_password_attempts': user.incorrectPasswordAttempts + 1},
             TableName: TABLE_NAME
-        })
+        }).promise();
     }
 
     async clearIncorrectAttempts(username) {
@@ -85,7 +87,14 @@ export default class UserHandler {
                 ExpressionAttributeValues: {':incorrect_password_attempts': 0},
                 TableName: TABLE_NAME
             }
-        )
+        ).promise();
+    }
+
+    async cognitoResetPassword(username, userPoolId) {
+        return cognito.adminResetUserPassword({
+            Username: username,
+            UserPoolId: userPoolId
+        }).promise();
     }
 
     getExtendedUserNameFromEvent(cognitoTriggerEvent) {
