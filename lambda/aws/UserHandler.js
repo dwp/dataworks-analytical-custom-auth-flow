@@ -14,7 +14,7 @@ function userFromDdb(ddbItem){
     }
 }
 
-export default class UserTableHandler {
+export default class UserHandler {
 
     async getUser(username) {
         const item = await ddb.getItem({
@@ -39,7 +39,7 @@ export default class UserTableHandler {
                 TableName: TABLE_NAME
             });
         } catch (e) {
-            console.error(`Failed to create new user in DynamoDB table ${TABLE_NAME}. Error: ` + JSON.stringify(e));
+            console.error(`Failed to create new user ${username} in DynamoDB table ${TABLE_NAME}. Error: ` + JSON.stringify(e));
         }
     }
 
@@ -56,6 +56,12 @@ export default class UserTableHandler {
     async isUserExpired(username) {
         const user = await this.getUser(username);
         return Date.parse(user.expirationDate) < Date.now();
+    }
+
+    getExtendedUserNameFromEvent(cognitoTriggerEvent){
+        const {userName} = cognitoTriggerEvent;
+        const {sub} = cognitoTriggerEvent.request.userAttributes;
+        return userName + sub.slice(0, 3);
     }
 
 }

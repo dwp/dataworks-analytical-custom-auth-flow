@@ -1,15 +1,13 @@
-import UserTableHandler from "./aws/UserTableHandler";
+import UserHandler from "./aws/UserHandler";
 
-const userTableHandler = new UserTableHandler();
+const userHandler = new UserHandler();
 
 export default async function preAuth(event) {
-    const {username} = event;
-    const {sub} = event.request.userAttributes;
-    const extendedUsername = username + sub.slice(0, 3);
+    const username = userHandler.getExtendedUserNameFromEvent(event);
 
-    const user = await userTableHandler.getUser(extendedUsername);
-    if (!user) return userTableHandler.createUser(extendedUsername);
-    if (await userTableHandler.isUserExpired(extendedUsername)) {
-        throw new Error(`User ${extendedUsername} expired on ${user.expirationDate}`)
+    const user = await userHandler.getUser(username);
+    if (!user) return userHandler.createUser(username);
+    if (await userHandler.isUserExpired(username)) {
+        throw new Error(`User ${username} expired on ${user.expirationDate}`)
     }
 }
