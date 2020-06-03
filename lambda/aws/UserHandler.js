@@ -1,11 +1,11 @@
 const AWS = require('aws-sdk');
 
-const {TABLE_NAME, AWS_REGION} = process.env;
+const {TABLE_NAME} = process.env;
 const USER_EXPIRY_MONTHS = process.env.USER_EXPIRY_MONTHS ? process.env.USER_EXPIRY_MONTHS : 3;
 const MAX_INCORRECT_ATTEMPTS = process.env.MAX_INCORRECT_ATTEMPTS ? process.env.MAX_INCORRECT_ATTEMPTS : 10;
 
-const ddb = new AWS.DynamoDB({region: AWS_REGION});
-const cognito = new AWS.CognitoIdentityServiceProvider({region: AWS_REGION});
+const ddb = new AWS.DynamoDB();
+const cognito = new AWS.CognitoIdentityServiceProvider();
 
 
 function userFromDdb(ddbItem) {
