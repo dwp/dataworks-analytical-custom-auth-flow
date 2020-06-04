@@ -1,17 +1,18 @@
 {
-  "name": "lambda_sms_totp",
+  "name": "dataworks-analytical-custom-auth-flow",
   "version": "1.0.0",
-  "main": "custom-auth-lambdas.js",
+  "main": "index.js",
   "scripts": {
     "test": "jest"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws": "0.0.3-2",
+    "crypto-secure-random-digit": "^1.0.9"
+  },
+  "devDependencies": {
     "aws-sdk": "^2.676.0",
-    "crypto-secure-random-digit": "^1.0.9",
     "jest": "^26.0.1"
   },
-  "description": ""
+  "description": "DataWorks Analytical Environment Cognito Lambdas"
 }
