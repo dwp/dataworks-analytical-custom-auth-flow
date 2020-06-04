@@ -5,7 +5,7 @@ const preTokenGeneration = require("./handlers/preTokenGeneration");
 const preAuth = require("./handlers/preAuth");
 const postAuth = require("./handlers/postAuth");
 
-const handleErrorsWrapper = require("./handleErrorsWrapper");
+const {handleErrorsWrapper} = require("./errors");
 
 module.exports = {
     defineAuthChallenge: (event, context) => handleErrorsWrapper(defineAuthChallenge, event, context),

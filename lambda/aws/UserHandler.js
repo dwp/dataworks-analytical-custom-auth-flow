@@ -11,9 +11,9 @@ const cognito = new AWS.CognitoIdentityServiceProvider();
 function userFromDdb(ddbItem) {
     return {
         username: ddbItem['username'].S,
-        creationDate: Date.parse(ddbItem['creation_date'].S),
-        expirationDate: Date.parse(ddbItem['expiration_date'].S),
-        lastLoggedIn: ddbItem['last_logged_in'] ? Date.parse(ddbItem['last_logged_in'].S): null,
+        creationDate: new Date(ddbItem['creation_date'].S),
+        expirationDate: new Date(ddbItem['expiration_date'].S),
+        lastLoggedIn: ddbItem['last_logged_in'] ? new Date(ddbItem['last_logged_in'].S) : null,
         incorrectPasswordAttempts: ddbItem['incorrect_password_attempts'] ? parseInt(ddbItem['incorrect_password_attempts'].N, 10) : 0,
     }
 }
@@ -31,20 +31,17 @@ module.exports = class UserHandler {
 
     async createUser(username) {
         const creationDate = new Date();
-        const expirationDate = new Date(creationDate.getTime()).setMonth(creationDate.getMonth() + USER_EXPIRY_MONTHS);
+        const expirationDate = new Date(creationDate.getTime());
+        expirationDate.setMonth(creationDate.getMonth() + USER_EXPIRY_MONTHS);
 
-        try {
-            return ddb.putItem({
-                Item: {
-                    username: {S: username},
-                    'creation_date': {S: creationDate.toISOString()},
-                    'expiration_date': {S: expirationDate.toISOString()},
-                },
-                TableName: TABLE_NAME
-            }).promise();
-        } catch (e) {
-            console.error(`Failed to create new user ${username} in DynamoDB table ${TABLE_NAME}. Error: ` + JSON.stringify(e));
-        }
+        return await ddb.putItem({
+            Item: {
+                username: {S: username},
+                'creation_date': {S: creationDate.toISOString()},
+                'expiration_date': {S: expirationDate.toISOString()},
+            },
+            TableName: TABLE_NAME
+        }).promise();
     }
 
     async updateUserLastLoggedIn(username) {
@@ -92,9 +89,13 @@ module.exports = class UserHandler {
 
     async cognitoResetPassword(username, userPoolId) {
         return cognito.adminResetUserPassword({
-            Username: username,
+            Username: this.getCognitoUsernameFromExtended(username),
             UserPoolId: userPoolId
         }).promise();
+    }
+
+    getCognitoUsernameFromExtended(extendedUsername){
+        return extendedUsername.substring(0, extendedUsername.length - 3)
     }
 
     getExtendedUserNameFromEvent(cognitoTriggerEvent) {

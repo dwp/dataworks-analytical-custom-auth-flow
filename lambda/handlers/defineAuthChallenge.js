@@ -21,13 +21,9 @@ module.exports = async function defineAuthChallenge(event) {
         (session.length === 3 && session[2].challengeName === 'CUSTOM_CHALLENGE' && session[2].challengeResult === true)) { // Issue tokens if user answered correctly to custom challenge
         event.response.issueTokens = true;
         event.response.failAuthentication = false;
-    } else if (session[1].challengeName === 'PASSWORD_VERIFIER' && session[1].challengeResult === false) {
-        event.response.issueTokens = false;
-        event.response.failAuthentication = true;
     } else {
         event.response.issueTokens = false;
         event.response.failAuthentication = true;
     }
-
-    return await event;
+    return event;
 }

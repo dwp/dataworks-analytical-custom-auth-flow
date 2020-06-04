@@ -1,14 +1,30 @@
 const digitGenerator = require('crypto-secure-random-digit');
 
-/*** Wraps the provided function to suppresses all error details from reaching the user
+/*** Used when the thrown error should reach the user */
+class UserExposedError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "UserExposedError";
+    }
+}
+
+/*** Wraps the provided function to suppress all error details from reaching the user
  and logs the errors, while providing an errorId to the user for correlation*/
-module.exports = function handleErrorsWrapper(func, ...params){
+async function handleErrorsWrapper(func, ...params){
     try {
-        return func(...params)
+        return await func(...params);
     } catch (e) {
+        if(e instanceof UserExposedError){
+            throw e;
+        }
         /* Generate random error ID */
         e.correlationId = Buffer.from(digitGenerator.randomDigits(32).join('')).toString('base64');
-        console.error(JSON.stringify(e));
-        throw new Error(`Error occurred while processing your request. Please try again later or contact support (errorId: ${e.correlationId})`)
+        console.error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
+        throw new Error(`Error occurred while processing your request. Please try again later or contact support (errorId: ${e.correlationId})`);
     }
+}
+
+module.exports = {
+    handleErrorsWrapper,
+    UserExposedError
 }

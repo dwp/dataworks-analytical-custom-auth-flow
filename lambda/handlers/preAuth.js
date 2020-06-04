@@ -1,4 +1,5 @@
 const UserHandler = require( "../aws/UserHandler");
+const {UserExposedError} = require("../errors");
 
 const userHandler = new UserHandler();
 
@@ -10,13 +11,13 @@ module.exports = async function preAuth(event) {
 
     if (await userHandler.isExpired(username)) {
         console.warn(`User ${username} expired on ${user.expirationDate}`);
-        throw new Error(`Your user is expired. Please contact support.`);
+        throw new UserExposedError(`Your user is expired. Please contact support.`);
     }
 
     if (await userHandler.isMaxIncorrectAttempts(username)) {
         console.warn(`User ${username} has reached the maximum number of incorrect password attempts. Forcing reset password.`);
         await userHandler.cognitoResetPassword(username, event.userPoolId);
-        throw new Error(`Maximum incorrect password attempts reached. Password reset required.`)
+        throw new UserExposedError(`Maximum incorrect password attempts reached. Password reset required.`)
     }
 
     /* Assume this is an incorrect password attempt, it will
