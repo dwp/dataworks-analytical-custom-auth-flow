@@ -11,7 +11,12 @@ module.exports = async function preAuth(event) {
 
     if (await userHandler.isExpired(username)) {
         console.warn(`User ${username} expired on ${user.expirationDate}`);
-        throw new UserExposedError(`Your user is expired. Please contact support.`);
+        throw new UserExposedError(`Your user is expired. Please contact support to regain access.`);
+    }
+
+    if (await userHandler.isInactive(username)) {
+        console.warn(`User ${username} has been inactive since ${user.lastLoggedIn}. Blocking access.`);
+        throw new UserExposedError(`Your user has been inactive for longer than the allowed period. Please contact support to regain access.`)
     }
 
     if (await userHandler.isMaxIncorrectAttempts(username)) {
