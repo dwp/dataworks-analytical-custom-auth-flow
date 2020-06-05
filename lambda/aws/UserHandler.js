@@ -2,6 +2,7 @@ const AWS = require('aws-sdk');
 
 const {TABLE_NAME} = process.env;
 const USER_EXPIRY_MONTHS = process.env.USER_EXPIRY_MONTHS ? process.env.USER_EXPIRY_MONTHS : 12;
+const USER_INVACTIVITY_BLOCK_MONTHS = process.env.USER_INVACTIVITY_BLOCK_MONTHS ? process.env.USER_INVACTIVITY_BLOCK_MONTHS : 3;
 const MAX_INCORRECT_ATTEMPTS = process.env.MAX_INCORRECT_ATTEMPTS ? process.env.MAX_INCORRECT_ATTEMPTS : 10;
 
 const ddb = new AWS.DynamoDB();
@@ -34,7 +35,7 @@ module.exports = class UserHandler {
         const expirationDate = new Date(creationDate.getTime());
         expirationDate.setMonth(creationDate.getMonth() + USER_EXPIRY_MONTHS);
 
-        return await ddb.putItem({
+        return ddb.putItem({
             Item: {
                 username: {S: username},
                 'creation_date': {S: creationDate.toISOString()},
@@ -57,6 +58,15 @@ module.exports = class UserHandler {
     async isExpired(username) {
         const user = await this.getUser(username);
         return user.expirationDate < Date.now();
+    }
+
+    async isInactive(username) {
+        const {lastLoggedIn} = await this.getUser(username);
+        if(!lastLoggedIn) return false;
+
+        const lastAllowedLoginDate = new Date(lastLoggedIn.getTime());
+        lastAllowedLoginDate.setMonth(lastLoggedIn.getMonth() + USER_INVACTIVITY_BLOCK_MONTHS);
+        return new Date() > lastAllowedLoginDate;
     }
 
     async isMaxIncorrectAttempts(username) {

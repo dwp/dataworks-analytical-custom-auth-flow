@@ -43,7 +43,7 @@ jobs:
       - name: Zip lambda
         run: mkdir lambda-zip
       - name: Install dependencies
-        run: cd lambda && npm ci
+        run: cd lambda && npm ci --only=production
       - uses: montudor/action-zip@v0.1.0
         with:
           args: zip -qq -r ./lambda-zip/lambda.zip ./lambda
