@@ -35,7 +35,7 @@ module.exports = class UserHandler {
         const expirationDate = new Date(creationDate.getTime());
         expirationDate.setMonth(creationDate.getMonth() + USER_EXPIRY_MONTHS);
 
-        return await ddb.putItem({
+        return ddb.putItem({
             Item: {
                 username: {S: username},
                 'creation_date': {S: creationDate.toISOString()},
