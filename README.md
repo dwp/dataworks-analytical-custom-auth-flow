@@ -4,7 +4,7 @@ Lambda triggers to facilitate the custom authentication flow in Cognito for the 
 The 3 auth challenge lambdas (`defineAuthChallenge`, `createAuthChallenge` and `verifyAuthChallenge`) are used to implement the custom SMS MFA flow that is required when a user does not have software MFA set up. Therefore it is **required** that every user that attempts login has a phone number set in the Cognito User Pool.
 
 * `defineAuthChallenge` - defines the steps in the custom authentication flow. There are essentially 2 steps: the `PASSWORD_VERIFIER`, which is handled by cognito, and the `CUSTOM_CHALLENGE` step, created in the next step
-* `createAuthChallenge` - generates a cryptographically secure 6-digit number that is sent to the user using AWS SNS. The code is also return to Cognito for verification in the next step.
+* `createAuthChallenge` - generates a cryptographically secure 6-digit number that is sent to the user using AWS SNS. The code is also returned to Cognito for verification in the next step.
 * `verifyAuthChallenge` - receives the code entered by the user and compares it against the one stored in cognito
 
 The `preAuth` and `postAuth` lambdas are used to implement additional security features not supported by cognito. They use a dynamodb table to store metadata about the user expiry and incorrect login attempts. There are 3 additional lambdas:
