@@ -54,3 +54,11 @@ test('fails auth and doesnt issue token if challenges arent passed', async () =>
     expect(response2.response.issueTokens).toBe(false);
     expect(response2.response.failAuthentication).toBe(true);
 });
+
+test('fails auth and doesnt issue token if user does not exist', async () => {
+    let sessionLength1 = JSON.parse(JSON.stringify(event));
+    sessionLength1.userName = "unknown";
+    let response = await handler(sessionLength1, context)
+    expect(response.response.issueTokens).toBe(false);
+    expect(response.response.failAuthentication).toBe(true);
+});
