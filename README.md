@@ -1,3 +1,5 @@
+# DO NOT USE THIS REPO - MIGRATED TO GITLAB
+
 # dataworks-analytical-custom-auth-flow
 Lambda triggers to facilitate the custom authentication flow in Cognito for the DataWorks analytical environment.
 
